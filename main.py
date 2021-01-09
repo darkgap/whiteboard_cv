@@ -1,11 +1,10 @@
-from matplotlib import image
-from matplotlib import pyplot as plt
+from sklearn.cluster import KMeans
 import numpy as np
+import cv2
+import os
+
 from img_process import get_whiteboard_from_points
 from camboard import find_corners
-import cv2
-from sklearn.cluster import KMeans
-import os
 
 def main():
     FILENAMES = [f'images/{name}' for name in os.listdir('images')]
@@ -25,9 +24,9 @@ def process_image(img_name):
     width,height = img_dims[0],img_dims[1]
     crop_limit = max(width,height)
 
-    valid_pts = np.argwhere(pts[:,0] < crop_limit*1.20).reshape(-1,) # and pts < width
+    valid_pts = np.argwhere(pts[:,0] < crop_limit*1.15).reshape(-1,) # and pts < width
     pts = pts[valid_pts]
-    valid_pts = np.argwhere(pts[:,1] < crop_limit*1.20).reshape(-1,) # and pts < width
+    valid_pts = np.argwhere(pts[:,1] < crop_limit*1.15).reshape(-1,) # and pts < width
     pts = pts[valid_pts]
 
     kmeans = KMeans(n_clusters = 4, random_state = 0).fit(pts)
@@ -39,8 +38,8 @@ def process_image(img_name):
     dst = get_whiteboard_from_points(img, means, out_dims)
     
     [cv2.circle(img,(ptx,pty),100,(0,255,0),10) for [ptx, pty] in np.round(means)]
-
-    cv2.imshow(img_name,np.hstack((cv2.resize(debug,(300,300)),cv2.resize(dst,(300,300)))))
+    images = np.hstack((cv2.resize(img,(300,300)),cv2.resize(dst,(300,300))))
+    cv2.imshow(img_name,images)
 
 if __name__ == "__main__":
     main()
