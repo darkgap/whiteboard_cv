@@ -9,7 +9,11 @@ import os
 
 def main():
     FILENAMES = [f'images/{name}' for name in os.listdir('images')]
-    [heh(fn) for fn in FILENAMES]
+    [process_image(fn) for fn in FILENAMES]
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 
 def process_image(img_name):
 
@@ -21,7 +25,7 @@ def process_image(img_name):
     #     [723.5,	4275.5]])
     
     img_cv2 = cv2.imread(img_name)
-    img = image.imread(img_name)
+    img = cv2.imread(img_name)
 
     pts = find_corners(img_cv2)
 
@@ -44,16 +48,16 @@ def process_image(img_name):
     width,height = img_dims[0],img_dims[1]
     # print(width,height)
 
-    limit = max(width,height)
+    crop_limit = max(width,height)
     valid_pts = np.argwhere(pts[:,0] < crop_limit*1.20).reshape(-1,) # and pts < width
     pts = pts[valid_pts]
     valid_pts = np.argwhere(pts[:,1] < crop_limit*1.20).reshape(-1,) # and pts < width
     pts = pts[valid_pts]
     # print(pts.shape)
-    valid_pts = np.argwhere(pts[:,0] > -crop_limit*0.2).reshape(-1,) # and pts < width
-    pts = pts[valid_pts]
-    valid_pts = np.argwhere(pts[:1] > -crop_limit*0.2).reshape(-1,) # and pts < width
-    pts = pts[valid_pts]
+    # valid_pts = np.argwhere(pts[:,0] > -crop_limit*0.2).reshape(-1,) # and pts < width
+    # pts = pts[valid_pts]
+    # valid_pts = np.argwhere(pts[:1] > -crop_limit*0.2).reshape(-1,) # and pts < width
+    # pts = pts[valid_pts]
     # print(pts.shape)
     
     # plt.scatter(pts[:,0],pts[:,1])
@@ -67,20 +71,21 @@ def process_image(img_name):
 
   
     # print(pts)
-    # debug = img
-    # [cv2.circle(debug,(ptx,pty),100,(255,0,0),10) for [ptx, pty] in np.round(means)]
+    
+    width,height = 1920,1080
+    dims = (width, height)
+    dst = get_whiteboard_from_points(img, means, dims)
+
+    debug = img
+    [cv2.circle(debug,(ptx,pty),100,(0,255,0),10) for [ptx, pty] in np.round(means)]
     # plt.imshow(debug)
     # plt.show()
 
     # means = np.sort(means,1)
-    width,height = 1920,1080
-    dims = (width,height)
-    means = ordered_corners(means)
-    print(means)
-    dst = get_whiteboard_from_points(img, means, dims)
+    # print(means)
     
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    cv2.imshow(img_name,np.hstack((cv2.resize(debug,(300,300)),cv2.resize(dst,(300,300)))))
+
     
     # plt.subplot(121),plt.imshow(img),plt.title('Input')
     # plt.subplot(122),plt.imshow(dst),plt.title('Output')

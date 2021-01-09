@@ -11,7 +11,7 @@ def get_whiteboard_from_points(img,pts,resolution):
 
     # C = A @ np.linalg.inv(B)
     # C = C.T/C[-1,-1] # back to homogeneus transform matrix
-    
+    pts = ordered_corners(pts)
     C = cv2.getPerspectiveTransform(pts,np.float32([[0,width,width,0],[0,0,height,height]]).T)
 
     dst = cv2.warpPerspective(img,C,resolution)
