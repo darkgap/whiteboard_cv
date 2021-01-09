@@ -11,20 +11,20 @@ def get_whiteboard_from_points(img,pts,resolution):
 
     # C = A @ np.linalg.inv(B)
     # C = C.T/C[-1,-1] # back to homogeneus transform matrix
+
+    pts = ordered_corners(pts)
     
     C = cv2.getPerspectiveTransform(pts,np.float32([[0,width,width,0],[0,0,height,height]]).T)
 
     dst = cv2.warpPerspective(img,C,resolution)
     return dst
 
-# By gdelazzari
 def ordered_corners(a):
     center = np.mean(a, axis=0)
     centered = a - center
     centered_sorted = np.array(sorted(centered, key=lambda p: math.atan2(p[1], p[0])))
     return centered_sorted + center
 
-    
 def get_mat_A_for_dim(width: int = 1920, height: int = 1080):
     return basis_to_point([[0,width,width,0],[0,0,height,height]])
 

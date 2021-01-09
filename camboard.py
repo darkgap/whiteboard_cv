@@ -24,9 +24,9 @@ def angle_diff(a, b) -> float:
     diff = a - b
     
     while diff < -np.pi:
-        difference += 2 * np.pi
+        diff += 2 * np.pi
     while diff > np.pi:
-        difference -= 2 * np.pi
+        diff -= 2 * np.pi
     
     return diff
 
@@ -70,9 +70,11 @@ def all_intersections(lines, theta_threshold = np.pi / 180 * 45) -> List[Tuple[i
 
     return points
 
-def find_corners(img):# -> List[Tuple[int, int]]:
+def find_corners(img: np.ndarray, debug = False) -> List[Tuple[float, float]]:
+    RESCALE_FACTOR = 8
 
-    img = cv2.resize(img, dsize=(0, 0), fx=1/8, fy=1/8)
+    img = cv2.resize(img, dsize=(0, 0), fx=1 / RESCALE_FACTOR, fy=1 / RESCALE_FACTOR)
+
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     mean_value = hsv[:, :, 2].mean()
@@ -100,37 +102,27 @@ def find_corners(img):# -> List[Tuple[int, int]]:
 
     lines = cv2.HoughLines(contours_img, 1, np.pi / 180, 50)
 
-    intersections = all_intersections(lines)
+    intersections = np.array(all_intersections(lines))
 
-    debug = cv2.cvtColor(contours_img, cv2.COLOR_GRAY2BGR)
-    for item in lines:
-        rho, theta = item[0]
-        a = np.cos(theta)
-        b = np.sin(theta)
-        x0 = a*rho
-        y0 = b*rho
-        x1 = int(x0 + 1000*(-b))
-        y1 = int(y0 + 1000*(a))
-        x2 = int(x0 - 1000*(-b))
-        y2 = int(y0 - 1000*(a))
+    if debug:
+        debug_img = cv2.cvtColor(contours_img, cv2.COLOR_GRAY2BGR)
+        for item in lines:
+            rho, theta = item[0]
+            a = np.cos(theta)
+            b = np.sin(theta)
+            x0 = a*rho
+            y0 = b*rho
+            x1 = int(x0 + 1000*(-b))
+            y1 = int(y0 + 1000*(a))
+            x2 = int(x0 - 1000*(-b))
+            y2 = int(y0 - 1000*(a))
 
-        cv2.line(debug, (x1,y1), (x2,y2), (0,0,255), 2)
-    for item in intersections:
-        x, y = item
+            cv2.line(debug_img, (x1,y1), (x2,y2), (0,0,255), 2)
+        
+        for item in intersections:
+            x, y = item
+            cv2.circle(debug_img, (x, y), 4, (0, 255, 0))
 
-        cv2.circle(debug, (x, y), 4, (0, 255, 0))
-
-    # cv2.imshow(f'{filename}-debug', debug)
-
-    return np.array(intersections)*8
-
-# for filename in FILENAMES:
-#     img = cv2.imread(filename)
-#     img = cv2.resize(img, dsize=(0, 0), fx=1/8, fy=1/8)
-
-#     corners = find_corners(filename, img)
-
-#     #cv2.imshow(filename, img)
-
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+        cv2.imshow(f'debug', debug_img)
+    
+    return intersections * RESCALE_FACTOR
