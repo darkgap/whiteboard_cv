@@ -71,9 +71,14 @@ def all_intersections(lines, theta_threshold = np.pi / 180 * 45) -> List[Tuple[i
     return points
 
 def find_corners(img: np.ndarray, debug = False) -> List[Tuple[float, float]]:
-    RESCALE_FACTOR = 8
+    RESCALE_FACTOR_X = img.shape[1] / 576
+    RESCALE_FACTOR_Y = img.shape[0] / 432
 
-    img = cv2.resize(img, dsize=(0, 0), fx=1 / RESCALE_FACTOR, fy=1 / RESCALE_FACTOR)
+    img = cv2.resize(img, dsize=(0, 0), fx=1 / RESCALE_FACTOR_X, fy=1 / RESCALE_FACTOR_Y)
+
+    print(img.shape)
+
+    assert(img.shape[:2] == (432, 576))
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -125,4 +130,4 @@ def find_corners(img: np.ndarray, debug = False) -> List[Tuple[float, float]]:
 
         cv2.imshow(f'debug', debug_img)
     
-    return intersections * RESCALE_FACTOR
+    return intersections * np.array([RESCALE_FACTOR_X, RESCALE_FACTOR_Y])
