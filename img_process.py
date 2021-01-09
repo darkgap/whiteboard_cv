@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
+import math
 
-def get_whiteboard_from_points(img,pts,resolution = (1920,1080)):
+def get_whiteboard_from_points(img,pts,resolution):
     width,height = resolution 
 
     # A = get_mat_A_for_dim(*resolution)
@@ -15,6 +16,13 @@ def get_whiteboard_from_points(img,pts,resolution = (1920,1080)):
 
     dst = cv2.warpPerspective(img,C,resolution)
     return dst
+
+# By gdelazzari
+def ordered_corners(a):
+    center = np.mean(a, axis=0)
+    centered = a - center
+    centered_sorted = np.array(sorted(centered, key=lambda p: math.atan2(p[1], p[0])))
+    return centered_sorted + center
 
     
 def get_mat_A_for_dim(width: int = 1920, height: int = 1080):
