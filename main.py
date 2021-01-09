@@ -14,23 +14,12 @@ def main():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-
 def process_image(img_name):
 
     img_cv2 = cv2.imread(img_name)
     img = cv2.imread(img_name)
 
     pts = find_corners(img_cv2)
-
-    # plt.scatter(pts[:,0],pts[:,1])
-    # plt.show()
-    
-    # valid_pts_width = np.argwhere(pts[:,[0]] < width) # and pts < width
-    # pts = pts[valid_pts_width]
-    # # filter width
-    # valid_pts_height = np.argwhere(pts[:,[1]] < height) # and pts < width
-    # pts = pts[valid_pts_height]
-    # print(max(height,width))
 
     img_dims = img.shape[:2]
     width,height = img_dims[0],img_dims[1]
@@ -40,16 +29,6 @@ def process_image(img_name):
     pts = pts[valid_pts]
     valid_pts = np.argwhere(pts[:,1] < crop_limit*1.20).reshape(-1,) # and pts < width
     pts = pts[valid_pts]
-    
-    # print(pts.shape)
-    # valid_pts = np.argwhere(pts[:,0] > -crop_limit*0.2).reshape(-1,) # and pts < width
-    # pts = pts[valid_pts]
-    # valid_pts = np.argwhere(pts[:1] > -crop_limit*0.2).reshape(-1,) # and pts < width
-    # pts = pts[valid_pts]
-    # print(pts.shape)
-    
-    # plt.scatter(pts[:,0],pts[:,1])
-    # plt.show()
 
     kmeans = KMeans(n_clusters = 4, random_state = 0).fit(pts)
     
