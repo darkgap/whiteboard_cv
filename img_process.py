@@ -4,7 +4,7 @@ import math
 
 def get_whiteboard_from_points(img,pts,resolution):
     width,height = resolution 
-
+    dest_pts = np.float32([[0,width,width,0],[0,0,height,height]]).T
     # A = get_mat_A_for_dim(*resolution)
     # # print(pts.shape)
     # B = basis_to_point(pts)
@@ -12,7 +12,7 @@ def get_whiteboard_from_points(img,pts,resolution):
     # C = A @ np.linalg.inv(B)
     # C = C.T/C[-1,-1] # back to homogeneus transform matrix
     pts = ordered_corners(pts)
-    C = cv2.getPerspectiveTransform(pts,np.float32([[0,width,width,0],[0,0,height,height]]).T)
+    C = cv2.getPerspectiveTransform(pts,dest_pts)
 
     dst = cv2.warpPerspective(img,C,resolution)
     return dst
